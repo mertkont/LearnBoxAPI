@@ -1,6 +1,3 @@
-﻿# SQLite veritabanı dosyasını Docker konteynerine kopyala
-COPY ["identifier.sqlite", "/app/"]
-
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
 EXPOSE 80
@@ -22,6 +19,4 @@ RUN dotnet publish "API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-# SQLite veritabanı dosyasını kopyala
-COPY --from=base /app/identifier.sqlite .
 ENTRYPOINT ["dotnet", "API.dll"]
