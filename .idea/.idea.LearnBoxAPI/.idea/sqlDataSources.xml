@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DdlMappings">
+    <mapping uuid="d26a0426-65ca-43dc-b369-8e515bd8fd9f" name="LearnBoxDB Mapping">
+      <data-sources db="1b1f09d7-ec4a-413e-8fc4-e671d826fc7f" ddl="d0d568c7-8a7c-4a57-9ab3-8e8751ccf94a" />
+      <scope>
+        <node negative="1">
+          <node kind="database" negative="1" />
+          <node kind="database" qname="@">
+            <node kind="schema" negative="1" />
+          </node>
+          <node kind="schema" qname="main" />
+        </node>
+      </scope>
+    </mapping>
+  </component>
+  <component name="SqlDataSourceStorage">
+    <option name="dataSources">
+      <list>
+        <State>
+          <option name="id" value="d0d568c7-8a7c-4a57-9ab3-8e8751ccf94a" />
+          <option name="name" value="LearnBoxDB (DDL)" />
+          <option name="dbmsName" value="SQLITE" />
+          <option name="urls">
+            <array>
+              <option value="file://$PROJECT_DIR$" />
+            </array>
+          </option>
+          <option name="outLayout" value="File per object by schema.groovy" />
+        </State>
+      </list>
+    </option>
+  </component>
+</project>
