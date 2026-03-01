@@ -3,20 +3,22 @@ using DataAccess.DTOs;
 using DataAccess.Interfaces;
 using DataAccess.Models;
 
-namespace LearnBoxApi.Tests;
+namespace LearnBoxApi.NUnitTests;
 
+[TestFixture]
 public class TodoServiceTests
 {
-    private readonly Mock<ITodoDal> _mockTodoDal;
-    private readonly TodoService _todoService;
+    private Mock<ITodoDal> _mockTodoDal = null!;
+    private TodoService _todoService = null!;
 
-    public TodoServiceTests()
+    [SetUp]
+    public void SetUp()
     {
         _mockTodoDal = new Mock<ITodoDal>();
         _todoService = new TodoService(_mockTodoDal.Object);
     }
 
-    [Fact]
+    [Test]
     public void GetAllTodos_ReturnsAllTodos()
     {
         var expected = new List<TodoDetailsDto>
@@ -28,12 +30,12 @@ public class TodoServiceTests
 
         var result = _todoService.GetAllTodos();
 
-        Assert.Equal(2, result.Count);
-        Assert.Equal(expected, result);
+        Assert.That(result.Count, Is.EqualTo(2));
+        Assert.That(result, Is.EqualTo(expected));
         _mockTodoDal.Verify(d => d.GetAllTodos(), Times.Once);
     }
 
-    [Fact]
+    [Test]
     public void GetTodoById_ValidId_ReturnsTodo()
     {
         var expected = new TodoDetailsDto { TodoId = 3, TodoTopic = "Test", TodoText = "Test Text" };
@@ -41,23 +43,22 @@ public class TodoServiceTests
 
         var result = _todoService.GetTodoById(3);
 
-        Assert.NotNull(result);
-        Assert.Equal(3, result.TodoId);
-        Assert.Equal("Test", result.TodoTopic);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.TodoId, Is.EqualTo(3));
+        Assert.That(result.TodoTopic, Is.EqualTo("Test"));
         _mockTodoDal.Verify(d => d.GetTodoById(3), Times.Once);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    [InlineData(-50)]
+    [TestCase(0)]
+    [TestCase(-1)]
+    [TestCase(-50)]
     public void GetTodoById_InvalidId_ThrowsArgumentException(int invalidId)
     {
         Assert.Throws<ArgumentException>(() => _todoService.GetTodoById(invalidId));
         _mockTodoDal.Verify(d => d.GetTodoById(It.IsAny<int>()), Times.Never);
     }
 
-    [Fact]
+    [Test]
     public void GetCompletedTodos_ReturnsList()
     {
         var expected = new List<TodoDetailsDto>
@@ -68,12 +69,12 @@ public class TodoServiceTests
 
         var result = _todoService.GetCompletedTodos();
 
-        Assert.Single(result);
-        Assert.True(result[0].IsCompleted);
+        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result[0].IsCompleted, Is.True);
         _mockTodoDal.Verify(d => d.GetCompletedTodos(), Times.Once);
     }
 
-    [Fact]
+    [Test]
     public void GetUncompletedTodos_ReturnsList()
     {
         var expected = new List<TodoDetailsDto>
@@ -84,12 +85,12 @@ public class TodoServiceTests
 
         var result = _todoService.GetUncompletedTodos();
 
-        Assert.Single(result);
-        Assert.False(result[0].IsCompleted);
+        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result[0].IsCompleted, Is.False);
         _mockTodoDal.Verify(d => d.GetUncompletedTodos(), Times.Once);
     }
 
-    [Fact]
+    [Test]
     public void GetOverdueTodos_ReturnsList()
     {
         var expected = new List<Todo>
@@ -100,11 +101,11 @@ public class TodoServiceTests
 
         var result = _todoService.GetOverdueTodos();
 
-        Assert.Single(result);
+        Assert.That(result, Has.Count.EqualTo(1));
         _mockTodoDal.Verify(d => d.GetOverdueTodos(), Times.Once);
     }
 
-    [Fact]
+    [Test]
     public void AddTodo_ValidTodo_CallsDal()
     {
         var todo = new Todo { TodoTopic = "New", TodoText = "New Todo", CategoryId = 1 };
@@ -114,14 +115,14 @@ public class TodoServiceTests
         _mockTodoDal.Verify(d => d.AddTodo(todo), Times.Once);
     }
 
-    [Fact]
+    [Test]
     public void AddTodo_NullTodo_ThrowsArgumentNullException()
     {
         Assert.Throws<ArgumentNullException>(() => _todoService.AddTodo(null!));
         _mockTodoDal.Verify(d => d.AddTodo(It.IsAny<Todo>()), Times.Never);
     }
 
-    [Fact]
+    [Test]
     public void UpdateTodo_ValidTodo_CallsDal()
     {
         var todo = new Todo { TodoId = 1, TodoTopic = "Updated" };
@@ -131,14 +132,14 @@ public class TodoServiceTests
         _mockTodoDal.Verify(d => d.UpdateTodo(todo), Times.Once);
     }
 
-    [Fact]
+    [Test]
     public void UpdateTodo_NullTodo_ThrowsArgumentNullException()
     {
         Assert.Throws<ArgumentNullException>(() => _todoService.UpdateTodo(null!));
         _mockTodoDal.Verify(d => d.UpdateTodo(It.IsAny<Todo>()), Times.Never);
     }
 
-    [Fact]
+    [Test]
     public void DeleteTodo_ValidId_CallsDal()
     {
         _todoService.DeleteTodo(10);
@@ -146,22 +147,21 @@ public class TodoServiceTests
         _mockTodoDal.Verify(d => d.DeleteTodo(10), Times.Once);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
+    [TestCase(0)]
+    [TestCase(-1)]
     public void DeleteTodo_InvalidId_ThrowsArgumentException(int invalidId)
     {
         Assert.Throws<ArgumentException>(() => _todoService.DeleteTodo(invalidId));
         _mockTodoDal.Verify(d => d.DeleteTodo(It.IsAny<int>()), Times.Never);
     }
 
-    [Fact]
+    [Test]
     public void GetAllTodos_EmptyList_ReturnsEmptyList()
     {
         _mockTodoDal.Setup(d => d.GetAllTodos()).Returns(new List<TodoDetailsDto>());
 
         var result = _todoService.GetAllTodos();
 
-        Assert.Empty(result);
+        Assert.That(result, Is.Empty);
     }
 }

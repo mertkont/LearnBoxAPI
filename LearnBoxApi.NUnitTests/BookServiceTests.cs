@@ -3,20 +3,22 @@ using DataAccess.DTOs;
 using DataAccess.Interfaces;
 using DataAccess.Models;
 
-namespace LearnBoxApi.Tests;
+namespace LearnBoxApi.NUnitTests;
 
+[TestFixture]
 public class BookServiceTests
 {
-    private readonly Mock<IBookDal> _mockBookDal;
-    private readonly BookService _bookService;
+    private Mock<IBookDal> _mockBookDal = null!;
+    private BookService _bookService = null!;
 
-    public BookServiceTests()
+    [SetUp]
+    public void SetUp()
     {
         _mockBookDal = new Mock<IBookDal>();
         _bookService = new BookService(_mockBookDal.Object);
     }
 
-    [Fact]
+    [Test]
     public void GetAllBooks_ReturnsAllBooks()
     {
         var expected = new List<BookDetailsDto>
@@ -28,12 +30,12 @@ public class BookServiceTests
 
         var result = _bookService.GetAllBooks();
 
-        Assert.Equal(2, result.Count);
-        Assert.Equal(expected, result);
+        Assert.That(result.Count, Is.EqualTo(2));
+        Assert.That(result, Is.EqualTo(expected));
         _mockBookDal.Verify(d => d.GetAllBooks(), Times.Once);
     }
 
-    [Fact]
+    [Test]
     public void GetBookById_ValidId_ReturnsBook()
     {
         var expected = new BookDetailsDto { BookId = 5, BookName = "Test Book" };
@@ -41,23 +43,22 @@ public class BookServiceTests
 
         var result = _bookService.GetBookById(5);
 
-        Assert.NotNull(result);
-        Assert.Equal(5, result.BookId);
-        Assert.Equal("Test Book", result.BookName);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.BookId, Is.EqualTo(5));
+        Assert.That(result.BookName, Is.EqualTo("Test Book"));
         _mockBookDal.Verify(d => d.GetBookById(5), Times.Once);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    [InlineData(-100)]
+    [TestCase(0)]
+    [TestCase(-1)]
+    [TestCase(-100)]
     public void GetBookById_InvalidId_ThrowsArgumentException(int invalidId)
     {
         Assert.Throws<ArgumentException>(() => _bookService.GetBookById(invalidId));
         _mockBookDal.Verify(d => d.GetBookById(It.IsAny<int>()), Times.Never);
     }
 
-    [Fact]
+    [Test]
     public void GetCompletedBooks_ReturnsList()
     {
         var expected = new List<BookDetailsDto>
@@ -68,12 +69,12 @@ public class BookServiceTests
 
         var result = _bookService.GetCompletedBooks();
 
-        Assert.Single(result);
-        Assert.True(result[0].IsFinished);
+        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result[0].IsFinished, Is.True);
         _mockBookDal.Verify(d => d.GetCompletedBooks(), Times.Once);
     }
 
-    [Fact]
+    [Test]
     public void GetUncompletedBooks_ReturnsList()
     {
         var expected = new List<BookDetailsDto>
@@ -84,12 +85,12 @@ public class BookServiceTests
 
         var result = _bookService.GetUncompletedBooks();
 
-        Assert.Single(result);
-        Assert.False(result[0].IsFinished);
+        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result[0].IsFinished, Is.False);
         _mockBookDal.Verify(d => d.GetUncompletedBooks(), Times.Once);
     }
 
-    [Fact]
+    [Test]
     public void GetOverdueBooks_ReturnsList()
     {
         var expected = new List<Book>
@@ -100,11 +101,11 @@ public class BookServiceTests
 
         var result = _bookService.GetOverdueBooks();
 
-        Assert.Single(result);
+        Assert.That(result, Has.Count.EqualTo(1));
         _mockBookDal.Verify(d => d.GetOverdueBooks(), Times.Once);
     }
 
-    [Fact]
+    [Test]
     public void AddBook_ValidBook_CallsDal()
     {
         var book = new Book { BookName = "New Book", CategoryId = 1 };
@@ -114,14 +115,14 @@ public class BookServiceTests
         _mockBookDal.Verify(d => d.AddBook(book), Times.Once);
     }
 
-    [Fact]
+    [Test]
     public void AddBook_NullBook_ThrowsArgumentNullException()
     {
         Assert.Throws<ArgumentNullException>(() => _bookService.AddBook(null!));
         _mockBookDal.Verify(d => d.AddBook(It.IsAny<Book>()), Times.Never);
     }
 
-    [Fact]
+    [Test]
     public void UpdateBook_ValidBook_CallsDal()
     {
         var book = new Book { BookId = 1, BookName = "Updated Book" };
@@ -131,14 +132,14 @@ public class BookServiceTests
         _mockBookDal.Verify(d => d.UpdateBook(book), Times.Once);
     }
 
-    [Fact]
+    [Test]
     public void UpdateBook_NullBook_ThrowsArgumentNullException()
     {
         Assert.Throws<ArgumentNullException>(() => _bookService.UpdateBook(null!));
         _mockBookDal.Verify(d => d.UpdateBook(It.IsAny<Book>()), Times.Never);
     }
 
-    [Fact]
+    [Test]
     public void DeleteBook_ValidId_CallsDal()
     {
         _bookService.DeleteBook(5);
@@ -146,22 +147,21 @@ public class BookServiceTests
         _mockBookDal.Verify(d => d.DeleteBook(5), Times.Once);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
+    [TestCase(0)]
+    [TestCase(-1)]
     public void DeleteBook_InvalidId_ThrowsArgumentException(int invalidId)
     {
         Assert.Throws<ArgumentException>(() => _bookService.DeleteBook(invalidId));
         _mockBookDal.Verify(d => d.DeleteBook(It.IsAny<int>()), Times.Never);
     }
 
-    [Fact]
+    [Test]
     public void GetAllBooks_EmptyList_ReturnsEmptyList()
     {
         _mockBookDal.Setup(d => d.GetAllBooks()).Returns(new List<BookDetailsDto>());
 
         var result = _bookService.GetAllBooks();
 
-        Assert.Empty(result);
+        Assert.That(result, Is.Empty);
     }
 }
