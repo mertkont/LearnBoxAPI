@@ -3,7 +3,7 @@ namespace DataAccess.Models;
 public class Book
 {
     public int BookId { get; set; }
-    public string BookName { get; set; }
+    public string BookName { get; set; } = string.Empty;
     public DateTime BuyDate { get; set; }
     public DateTime FinishDate { get; set; }
     public Priority Priority { get; set; }
